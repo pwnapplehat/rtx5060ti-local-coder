@@ -27,4 +27,5 @@ These help MoE RAM spill and compaction. Leaving more of the coding model on CPU
 - Commands: `install.bat` `start.bat` `stop.bat` `status.bat` `verify.bat`
 - Start order: coding server → compact sidecar → auth proxy → tunnel
 - Stop is port-scoped: switching coding models does not stop `:18081`
+- Model switch harden: `gpuSettleSeconds` (default 8) + `startRetries` (default 3) for intermittent Blackwell flash-attn init fails
 - Long chats: proxy compaction — see `CONTEXT.md`

@@ -15,6 +15,9 @@
   "fitCtxMin": 32768,
   "cpuThreads": 10,
   "cpuThreadsBatch": 10,
+  "gpuSettleSeconds": 8,
+  "startRetries": 3,
+  "healthTimeoutSec": 900,
   "compactModel": {
     "alias": "compact3b",
     "label": "Qwen2.5-3B-Instruct Q4_K_M (CPU compact sidecar)",

@@ -113,24 +113,46 @@ function Wait-LlamaServerHealthy {
         [string]$BaseUrl = "http://127.0.0.1:18080",
         [int]$TimeoutSec = 600
     )
+    return ((Wait-LlamaServerStartState -BaseUrl $BaseUrl -TimeoutSec $TimeoutSec) -eq "ok")
+}
+
+function Wait-LlamaServerStartState {
+    param(
+        [string]$BaseUrl = "http://127.0.0.1:18080",
+        [int]$TimeoutSec = 600,
+        [string]$ErrLog = "",
+        [int]$ProcessId = 0
+    )
     $deadline = (Get-Date).AddSeconds($TimeoutSec)
     while ((Get-Date) -lt $deadline) {
+        if ($ProcessId -gt 0 -and -not (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) {
+            return "dead"
+        }
+        if ($ErrLog -and (Test-Path $ErrLog)) {
+            $tail = ""
+            try { $tail = Get-Content $ErrLog -Raw -ErrorAction SilentlyContinue } catch {}
+            if ($tail -and ($tail -match 'CUDA error|launch_fattn|shared object initialization failed')) {
+                return "cuda-crash"
+            }
+        }
         try {
             $r = Invoke-WebRequest -Uri ($BaseUrl.TrimEnd('/') + "/health") -UseBasicParsing -TimeoutSec 3
-            if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 500) { return $true }
+            if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 500) { return "ok" }
         } catch {}
         Start-Sleep -Seconds 2
     }
-    return $false
+    return "timeout"
 }
 
 function Stop-LlamaServerByPort {
     param(
         [string]$RuntimeDir,
         [string]$PidFileName,
-        [int]$Port
+        [int]$Port,
+        [int]$SettleSeconds = 8
     )
     $pidFile = Join-Path $RuntimeDir $PidFileName
+    $settleStart = Get-Date
     if (Test-Path $pidFile) {
         $old = 0
         [void][int]::TryParse(((Get-Content $pidFile -Raw).Trim()), [ref]$old)
@@ -144,7 +166,24 @@ function Stop-LlamaServerByPort {
         ForEach-Object {
             Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
         }
-    Start-Sleep -Seconds 1
+
+    # Blackwell flash-attn init is flaky if the next load races a just-killed CUDA context.
+    if ($SettleSeconds -lt 1) { $SettleSeconds = 1 }
+    Write-Host ("GPU settle {0}s after stop (port {1})..." -f $SettleSeconds, $Port)
+    $portDeadline = (Get-Date).AddSeconds(30)
+    while ((Get-Date) -lt $portDeadline) {
+        $busy = $false
+        if (Test-TcpPortOpen -HostName "127.0.0.1" -Port $Port -TimeoutMs 200) { $busy = $true }
+        $procs = @(Get-CimInstance Win32_Process -Filter "Name = 'llama-server.exe'" -ErrorAction SilentlyContinue |
+            Where-Object { $_.CommandLine -match ("--port\s+{0}\b" -f $Port) })
+        if ($procs.Count -gt 0) { $busy = $true }
+        if (-not $busy) { break }
+        Start-Sleep -Seconds 1
+    }
+
+    $elapsed = ((Get-Date) - $settleStart).TotalSeconds
+    $need = [Math]::Ceiling($SettleSeconds - $elapsed)
+    if ($need -gt 0) { Start-Sleep -Seconds $need }
 }
 
 function Stop-LlamaServer {
@@ -153,15 +192,21 @@ function Stop-LlamaServer {
         $Config = $null
     )
     $port = 18080
+    $settle = 8
     if ($Config -and $null -ne $Config.llamaServerPort) {
         $port = [int]$Config.llamaServerPort
     } elseif (Test-Path (Join-Path (Get-RepoRoot) "config\models.json")) {
         try {
             $c = Get-ModelsConfig
             if ($null -ne $c.llamaServerPort) { $port = [int]$c.llamaServerPort }
+            if ($null -ne $c.gpuSettleSeconds) { $settle = [int]$c.gpuSettleSeconds }
+            $Config = $c
         } catch {}
     }
-    Stop-LlamaServerByPort -RuntimeDir $RuntimeDir -PidFileName "llama-server.pid" -Port $port
+    if ($Config -and $null -ne $Config.gpuSettleSeconds) {
+        $settle = [int]$Config.gpuSettleSeconds
+    }
+    Stop-LlamaServerByPort -RuntimeDir $RuntimeDir -PidFileName "llama-server.pid" -Port $port -SettleSeconds $settle
 }
 
 function Stop-CompactServer {
@@ -180,5 +225,5 @@ function Stop-CompactServer {
             }
         } catch {}
     }
-    Stop-LlamaServerByPort -RuntimeDir $RuntimeDir -PidFileName "compact-server.pid" -Port $port
+    Stop-LlamaServerByPort -RuntimeDir $RuntimeDir -PidFileName "compact-server.pid" -Port $port -SettleSeconds 2
 }
