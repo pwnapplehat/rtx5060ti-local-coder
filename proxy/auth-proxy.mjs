@@ -66,6 +66,7 @@ const compactCfg = {
 };
 
 let activeModel = readActiveModel();
+let loadingModel = readLoadingModel();
 let swapChain = Promise.resolve();
 
 function readActiveModel() {
@@ -77,6 +78,27 @@ function readActiveModel() {
     /* ignore */
   }
   return "";
+}
+
+function readLoadingModel() {
+  try {
+    const p = path.join(runtimeDir, "loading-model.txt");
+    if (fs.existsSync(p)) return fs.readFileSync(p, "utf8").trim();
+  } catch {
+    /* ignore */
+  }
+  return "";
+}
+
+function setLoadingModel(modelId) {
+  loadingModel = modelId || "";
+  const p = path.join(runtimeDir, "loading-model.txt");
+  try {
+    if (loadingModel) fs.writeFileSync(p, loadingModel, "utf8");
+    else if (fs.existsSync(p)) fs.unlinkSync(p);
+  } catch {
+    /* ignore */
+  }
 }
 
 function unauthorized(res) {
@@ -400,7 +422,13 @@ function runSwitch(modelId) {
     const child = spawn(
       "powershell.exe",
       ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", switchScript, "-Model", modelId],
-      { cwd: repoRoot, windowsHide: true }
+      {
+        cwd: repoRoot,
+        windowsHide: true,
+        // Detach so a canceled Cursor HTTP request cannot kill the GPU reload.
+        detached: true,
+        stdio: ["ignore", "pipe", "pipe"],
+      }
     );
     let stderr = "";
     child.stderr.on("data", (d) => {
@@ -425,7 +453,7 @@ function ensureModelLoaded(requested) {
     );
   }
   const current = readActiveModel() || activeModel;
-  if (current === target) {
+  if (current === target && !loadingModel) {
     activeModel = target;
     return Promise.resolve();
   }
@@ -434,14 +462,20 @@ function ensureModelLoaded(requested) {
     .catch(() => {})
     .then(async () => {
       const again = readActiveModel() || activeModel;
-      if (again === target) {
+      if (again === target && !readLoadingModel()) {
         activeModel = target;
+        setLoadingModel("");
         return;
       }
       console.log(`switching llama-server -> ${target}`);
-      await runSwitch(target);
-      activeModel = target;
-      console.log(`coding-model-active=${target}`);
+      setLoadingModel(target);
+      try {
+        await runSwitch(target);
+        activeModel = target;
+        console.log(`coding-model-active=${target}`);
+      } finally {
+        setLoadingModel("");
+      }
     });
   return swapChain;
 }
@@ -517,8 +551,50 @@ async function handleChatCompletions(req, res, bodyBuf) {
     return;
   }
 
+  const targetModel = normalizeModelName(openaiBody.model);
+  const loadWaitMs = Number(process.env.MODEL_LOAD_WAIT_MS || 45000);
+  const loadPromise = ensureModelLoaded(openaiBody.model);
+
+  let loadReady = false;
   try {
-    await ensureModelLoaded(openaiBody.model);
+    loadReady = await Promise.race([
+      loadPromise.then(() => true),
+      new Promise((resolve) => setTimeout(() => resolve(false), loadWaitMs)),
+    ]);
+  } catch (err) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: { message: String(err.message || err), type: "model_error" } }));
+    return;
+  }
+
+  if (!loadReady) {
+    const active = readActiveModel() || activeModel;
+    if (active === targetModel && !readLoadingModel()) {
+      loadReady = true;
+    } else {
+      // Switch keeps running on swapChain. Cursor should keep the same model selected and retry.
+      const loading = readLoadingModel() || targetModel;
+      res.writeHead(503, {
+        "Content-Type": "application/json",
+        "Retry-After": "45",
+      });
+      res.end(
+        JSON.stringify({
+          error: {
+            message:
+              `Model "${loading}" is cold-loading onto the GPU (usually 2-5 minutes after a plan/implement switch). ` +
+              `Keep "${targetModel}" selected and send the same message again — do not change models.`,
+            type: "model_loading",
+            code: "model_loading",
+          },
+        })
+      );
+      return;
+    }
+  }
+
+  try {
+    await loadPromise;
   } catch (err) {
     res.writeHead(400, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: { message: String(err.message || err), type: "model_error" } }));
@@ -582,6 +658,7 @@ const server = http.createServer(async (req, res) => {
         status: "ok",
         service: "llamacpp-auth-proxy",
         activeModel: readActiveModel() || activeModel || null,
+        loadingModel: readLoadingModel() || loadingModel || null,
         upstreamHealth: upstream,
         compactUpstreamHealth: compact,
         compactModel: compactModelAlias,

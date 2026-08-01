@@ -20,6 +20,12 @@ Settings → Models:
 
 Backend: **llama.cpp** OpenAI-compatible API via the auth proxy.
 
+## Model switching
+
+Pick **`qwen3coder30b`** or **`qwen3635b`** once in the Cursor model dropdown. The auth proxy reloads the GPU automatically — you do **not** need to flip models repeatedly.
+
+Cold swaps take **2–5 minutes** (unload + fit). If Cursor says it’s taking long or returns a loading error, **keep the same model selected** and send again after a minute. Do not thrash plan ↔ implement every message.
+
 ## Long Agent threads
 
 Cursor BYOK often assumes 1M context and may not auto-compact before this stack’s real **64K** window. The auth proxy compresses oversized histories using the CPU compact sidecar. Details: [`CONTEXT.md`](CONTEXT.md).
