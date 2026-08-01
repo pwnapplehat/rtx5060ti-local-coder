@@ -1,0 +1,60 @@
+{
+  "llamaCppDir": "E:\\LlamaCpp",
+  "modelsRoot": "E:\\LlamaModels",
+  "llamaServerHost": "127.0.0.1",
+  "llamaServerPort": 18080,
+  "authProxyPort": 11435,
+  "defaultModel": "qwen3coder30b",
+  "contextSize": 65536,
+  "flashAttention": true,
+  "cacheTypeK": "q8_0",
+  "cacheTypeV": "q8_0",
+  "parallelSlots": 1,
+  "fit": true,
+  "fitTargetMiB": 1024,
+  "fitCtxMin": 32768,
+  "cpuThreads": 10,
+  "cpuThreadsBatch": 10,
+  "compactModel": {
+    "alias": "compact3b",
+    "label": "Qwen2.5-3B-Instruct Q4_K_M (CPU compact sidecar)",
+    "repo": "Qwen/Qwen2.5-3B-Instruct-GGUF",
+    "include": "*Q4_K_M*",
+    "dir": "E:\\LlamaModels\\compact-qwen25-3b",
+    "ggufGlob": "*Q4_K_M*.gguf",
+    "port": 18081,
+    "contextSize": 8192,
+    "gpuLayers": 0,
+    "threads": 10
+  },
+  "contextCompact": {
+    "enabled": true,
+    "reserveCompletionTokens": 4096,
+    "safetyMarginTokens": 2048,
+    "keepRecentMessages": 14,
+    "summarizeMiddle": true,
+    "useCompactSidecar": true,
+    "charsPerToken": 3.5,
+    "maxSingleMessageChars": 48000
+  },
+  "models": {
+    "qwen3coder30b": {
+      "role": "implement",
+      "label": "Qwen3-Coder 30B (Unsloth UD-Q4_K_XL)",
+      "repo": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "include": "*UD-Q4_K_XL*",
+      "dir": "E:\\LlamaModels\\qwen3-coder-30b",
+      "ggufGlob": "*UD-Q4_K_XL*.gguf",
+      "enableThinking": true
+    },
+    "qwen3635b": {
+      "role": "plan",
+      "label": "Qwen3.6 35B-A3B (Unsloth UD-Q4_K_XL)",
+      "repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
+      "include": "*UD-Q4_K_XL*",
+      "dir": "E:\\LlamaModels\\qwen3.6-35b",
+      "ggufGlob": "*UD-Q4_K_XL*.gguf",
+      "enableThinking": true
+    }
+  }
+}

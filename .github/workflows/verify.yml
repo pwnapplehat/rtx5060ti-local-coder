@@ -1,0 +1,12 @@
+name: verify
+on:
+  push:
+  pull_request:
+jobs:
+  structure:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Structure gate
+        shell: pwsh
+        run: ./tests/01-structure.ps1

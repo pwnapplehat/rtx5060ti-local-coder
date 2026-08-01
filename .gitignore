@@ -1,0 +1,15 @@
+runtime/
+*.log
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+.ollama/
+__pycache__/
+.venv/
+dist/
+.idea/
+.vscode/
+*.gguf

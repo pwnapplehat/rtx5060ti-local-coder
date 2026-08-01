@@ -1,0 +1,39 @@
+{
+  "runtime": "llamacpp",
+  "cursor_models": {
+    "implement": "qwen3coder30b",
+    "plan": "qwen3635b"
+  },
+  "proxy_only_models": {
+    "compact": "compact3b"
+  },
+  "quant": {
+    "coding": "Unsloth UD-Q4_K_XL",
+    "compact": "Qwen2.5-3B-Instruct Q4_K_M"
+  },
+  "ports": {
+    "llamaServer": 18080,
+    "compactServer": 18081,
+    "authProxy": 11435
+  },
+  "cpu": {
+    "codingThreads": 10,
+    "codingThreadsBatch": 10,
+    "compactThreads": 10,
+    "note": "Prefer physical cores; do not force MoE onto CPU beyond --fit spill"
+  },
+  "paths": {
+    "llamaCppDir": "E:\\LlamaCpp",
+    "modelsRoot": "E:\\LlamaModels",
+    "compactDir": "E:\\LlamaModels\\compact-qwen25-3b"
+  },
+  "cursor_ui_steps": [
+    "Run install.bat once (llama.cpp + UD GGUFs + compact GGUF)",
+    "Run start.bat each session (coding + compact sidecar + proxy + tunnel)",
+    "OpenAI API Key = runtime/api-key.txt",
+    "Override OpenAI Base URL = printed https://….trycloudflare.com/v1",
+    "Add models: qwen3coder30b (implement) and qwen3635b (plan)",
+    "Do not add compact3b in Cursor — proxy-internal only",
+    "Select qwen3coder30b for coding; qwen3635b for planning"
+  ]
+}
