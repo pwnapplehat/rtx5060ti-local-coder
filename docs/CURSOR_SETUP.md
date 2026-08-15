@@ -2,8 +2,7 @@
 
 | Cursor id | Role | Quant |
 | --- | --- | --- |
-| `qwen3coder30b` | Implement | Unsloth UD-Q4_K_XL |
-| `qwen3635b` | Plan | Unsloth UD-Q4_K_XL |
+| `qwen3827b` | Plan + implement | Unsloth UD-Q4_K_XL |
 
 ```bat
 install.bat
@@ -15,16 +14,16 @@ Settings → Models:
 
 1. API key = `runtime\api-key.txt`
 2. Override Base URL = `runtime\public-base-url.txt` (`https://….trycloudflare.com/v1`)
-3. Models = **`qwen3coder30b`**, **`qwen3635b`**
+3. Models = **`qwen3827b`**
 4. Do not register `compact3b` in Cursor (proxy-internal summarizer on `:18081`)
 
 Backend: **llama.cpp** OpenAI-compatible API via the auth proxy.
 
 ## Model switching
 
-Pick **`qwen3coder30b`** or **`qwen3635b`** once in the Cursor model dropdown. The auth proxy reloads the GPU automatically — you do **not** need to flip models repeatedly.
+Use **`qwen3827b`** for both plan and implement. The auth proxy only reloads the GPU if you pick a different known id.
 
-Cold swaps take **2–5 minutes** (unload + fit). If Cursor says it’s taking long or returns a loading error, **keep the same model selected** and send again after a minute. Do not thrash plan ↔ implement every message.
+Cold loads can take several minutes. If Cursor says it is taking long or returns a loading error, keep **`qwen3827b`** selected and send again after a minute.
 
 ## Long Agent threads
 

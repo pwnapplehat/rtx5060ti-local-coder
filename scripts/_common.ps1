@@ -14,6 +14,30 @@ function Get-ModelsConfig {
     return (Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json)
 }
 
+function Get-ModelIds {
+    param([Parameter(Mandatory = $true)]$Config)
+    return @($Config.models.PSObject.Properties.Name)
+}
+
+function Get-DefaultModelId {
+    param([Parameter(Mandatory = $true)]$Config)
+    $id = [string]$Config.defaultModel
+    if (-not $id) { $id = (Get-ModelIds -Config $Config | Select-Object -First 1) }
+    Assert-KnownModel -ModelId $id -Config $Config
+    return $id
+}
+
+function Assert-KnownModel {
+    param(
+        [Parameter(Mandatory = $true)][string]$ModelId,
+        [Parameter(Mandatory = $true)]$Config
+    )
+    $ids = Get-ModelIds -Config $Config
+    if ($ids -notcontains $ModelId) {
+        throw ("Unknown model id '{0}'. Known: {1}" -f $ModelId, ($ids -join ", "))
+    }
+}
+
 function Resolve-GgufPath {
     param(
         [Parameter(Mandatory = $true)]

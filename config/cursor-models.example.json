@@ -1,8 +1,8 @@
 {
   "runtime": "llamacpp",
   "cursor_models": {
-    "implement": "qwen3coder30b",
-    "plan": "qwen3635b"
+    "plan": "qwen3827b",
+    "implement": "qwen3827b"
   },
   "proxy_only_models": {
     "compact": "compact3b"
@@ -28,12 +28,12 @@
     "compactDir": "E:\\LlamaModels\\compact-qwen25-3b"
   },
   "cursor_ui_steps": [
-    "Run install.bat once (llama.cpp + UD GGUFs + compact GGUF)",
+    "Run install.bat once (llama.cpp + UD GGUF + compact GGUF)",
     "Run start.bat each session (coding + compact sidecar + proxy + tunnel)",
     "OpenAI API Key = runtime/api-key.txt",
     "Override OpenAI Base URL = printed https://….trycloudflare.com/v1",
-    "Add models: qwen3coder30b (implement) and qwen3635b (plan)",
+    "Add model: qwen3827b (plan + implement)",
     "Do not add compact3b in Cursor — proxy-internal only",
-    "Select qwen3coder30b for coding; qwen3635b for planning"
+    "Select qwen3827b for both plan and implement"
   ]
 }

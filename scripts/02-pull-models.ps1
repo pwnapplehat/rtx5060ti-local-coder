@@ -1,17 +1,17 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Download Unsloth UD-Q4_K_XL GGUFs + optional CPU compact sidecar.
+  Download Unsloth GGUFs + optional CPU compact sidecar.
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet("all", "qwen3coder30b", "qwen3635b", "compact")]
     [string]$Target = "all"
 )
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "_common.ps1")
 $cfg = Get-ModelsConfig
+$ids = Get-ModelIds -Config $cfg
 
 $env:HF_XET_HIGH_PERFORMANCE = "1"
 $token = [Environment]::GetEnvironmentVariable("HF_TOKEN", "User")
@@ -26,6 +26,7 @@ if ($token) {
 
 function Pull-CodingModel {
     param([string]$Id)
+    Assert-KnownModel -ModelId $Id -Config $cfg
     $entry = $cfg.models.$Id
     $dir = [string]$entry.dir
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
@@ -48,15 +49,13 @@ function Pull-CompactModel {
     Write-Host ("OK compact -> {0}" -f $gguf)
 }
 
-switch ($Target) {
-    "qwen3coder30b" { Pull-CodingModel "qwen3coder30b" }
-    "qwen3635b" { Pull-CodingModel "qwen3635b" }
-    "compact" { Pull-CompactModel }
-    default {
-        Pull-CodingModel "qwen3coder30b"
-        Pull-CodingModel "qwen3635b"
-        Pull-CompactModel
-    }
+if ($Target -eq "all") {
+    foreach ($id in $ids) { Pull-CodingModel $id }
+    Pull-CompactModel
+} elseif ($Target -eq "compact") {
+    Pull-CompactModel
+} else {
+    Pull-CodingModel $Target
 }
 
 Write-Host "PULL_OK"

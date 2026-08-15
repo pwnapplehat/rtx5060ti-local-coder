@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  From-scratch / repair install for llama.cpp + Unsloth UD dual-model Cursor stack.
+  From-scratch / repair install for llama.cpp + Unsloth UD Qwen3.8 Cursor stack.
 #>
 [CmdletBinding()]
 param(
@@ -25,11 +25,10 @@ Write-Host "=== ensure API key ==="
 
 Write-Host ""
 Write-Host "INSTALL_OK"
-Write-Host "Implement model : qwen3coder30b  (Qwen3-Coder 30B Unsloth UD-Q4_K_XL)"
-Write-Host "Planner model   : qwen3635b      (Qwen3.6 35B-A3B Unsloth UD-Q4_K_XL)"
+Write-Host "Coding model    : qwen3827b     (Qwen3.8 27B Unsloth UD-Q4_K_XL)"
 Write-Host "Compact sidecar : compact3b     (Qwen2.5-3B-Instruct Q4_K_M, CPU :18081)"
 Write-Host "Start           : start.bat"
 
 if ($StartAfter) {
-    & (Join-Path $here "09-start-production.ps1") -Model qwen3coder30b
+    & (Join-Path $here "09-start-production.ps1")
 }

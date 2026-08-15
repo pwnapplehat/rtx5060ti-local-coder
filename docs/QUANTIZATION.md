@@ -1,8 +1,8 @@
 # Quantization
 
-## Coding models (GPU)
+## Coding model (GPU)
 
-Coding models use **Unsloth Dynamic UD-Q4_K_XL** GGUFs.
+The coding model uses **Unsloth Dynamic UD-Q4_K_XL** GGUF.
 
 | Term | Meaning |
 | --- | --- |
@@ -10,12 +10,13 @@ Coding models use **Unsloth Dynamic UD-Q4_K_XL** GGUFs.
 | UD | Unsloth Dynamic — sensitive tensors kept at higher precision |
 | XL | Quant strategy name (not “extra large model”) |
 
-Sources:
+Source:
 
-- `unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF` → `*UD-Q4_K_XL*`
-- `unsloth/Qwen3.6-35B-A3B-GGUF` → `*UD-Q4_K_XL*`
+- `unsloth/Qwen3.8-27B-GGUF` → `Qwen3.8-27B-UD-Q4_K_XL.gguf` (~17.9 GB)
 
-Avoid for these coding sizes on 16GB: Q2/Q3 (quality), FP16/Q8 (VRAM).
+`--fit on` plus `fitCtxMin` 32768 lets weights spill to RAM if VRAM is tight. If load still fails or context collapses, switch `include` / `ggufGlob` to `*UD-Q3_K_XL*` (~13.4 GB) and re-pull.
+
+Avoid for this size on 16GB: Q2 (quality), Q5+/Q8/FP16 (VRAM).
 
 ## Compact sidecar (CPU)
 
@@ -32,4 +33,5 @@ Proxy-only summarizer:
 ```bat
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\02-pull-models.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\02-pull-models.ps1 -Target compact
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\02-pull-models.ps1 -Target qwen3827b
 ```

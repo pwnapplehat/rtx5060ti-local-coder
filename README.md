@@ -6,10 +6,9 @@ Local Cursor coding stack for **NVIDIA GeForce RTX 5060 Ti (16GB)** + **~32GB sy
 
 | Cursor id | Weights | Quant | Role |
 | --- | --- | --- | --- |
-| **`qwen3coder30b`** | Qwen3-Coder 30B-A3B | Unsloth **UD-Q4_K_XL** | Implementation / Agent |
-| **`qwen3635b`** | Qwen3.6 35B-A3B | Unsloth **UD-Q4_K_XL** | Planning / architecture |
+| **`qwen3827b`** | Qwen3.8 27B | Unsloth **UD-Q4_K_XL** | Plan + implement (single GPU load) |
 
-Only one coding model is loaded on the GPU at a time. Pick the id in Cursor; the auth proxy switches `llama-server` on `:18080`.
+One coding GGUF is hot on the GPU. Use the same id for Agent, Chat, plan, and implement so Cursor does not trigger 2–5 minute model swaps.
 
 ## Context compaction
 
@@ -32,7 +31,7 @@ Details: [`docs/CONTEXT.md`](docs/CONTEXT.md).
 | `E:\LlamaModels\…` | GGUF weights |
 | `runtime\` | API key, tunnel URL, PIDs (gitignored) |
 
-Override paths in `config/models.json` if needed.
+Override paths in `config/models.json` if needed. llama.cpp tag is `llamaCppTag` (currently **b10437**, required for Qwen3.8).
 
 ## Quick start
 
@@ -54,8 +53,8 @@ verify.bat
 
 1. OpenAI API Key = contents of `runtime\api-key.txt`
 2. Override Base URL = contents of `runtime\public-base-url.txt` (after `start.bat`)
-3. Add models: **`qwen3coder30b`**, **`qwen3635b`**
-4. Default: **`qwen3coder30b`**
+3. Add model: **`qwen3827b`**
+4. Use that id for both plan and implement
 
 More detail: [`docs/CURSOR_SETUP.md`](docs/CURSOR_SETUP.md).
 
@@ -76,7 +75,7 @@ More detail: [`docs/CURSOR_SETUP.md`](docs/CURSOR_SETUP.md).
 | CPU threads | `cpuThreads` / `cpuThreadsBatch` in `config/models.json` (default 10) |
 | Flash attention | on |
 | KV cache | `q8_0` |
-| Thinking | enabled for both Cursor models |
+| Thinking | enabled |
 
 ## License
 

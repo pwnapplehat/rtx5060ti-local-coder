@@ -1,14 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Switch the hot llama-server model (planner <-> implementer).
+  Reload llama-server with a known Cursor model id from config/models.json.
 .NOTES
   Cursor model dropdown also triggers this via the auth proxy.
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("qwen3coder30b", "qwen3635b")]
     [string]$Model
 )
 

@@ -1,10 +1,11 @@
 {
   "llamaCppDir": "E:\\LlamaCpp",
+  "llamaCppTag": "b10437",
   "modelsRoot": "E:\\LlamaModels",
   "llamaServerHost": "127.0.0.1",
   "llamaServerPort": 18080,
   "authProxyPort": 11435,
-  "defaultModel": "qwen3coder30b",
+  "defaultModel": "qwen3827b",
   "contextSize": 65536,
   "flashAttention": true,
   "cacheTypeK": "q8_0",
@@ -41,21 +42,12 @@
     "maxSingleMessageChars": 48000
   },
   "models": {
-    "qwen3coder30b": {
-      "role": "implement",
-      "label": "Qwen3-Coder 30B (Unsloth UD-Q4_K_XL)",
-      "repo": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+    "qwen3827b": {
+      "role": "coding",
+      "label": "Qwen3.8 27B (Unsloth UD-Q4_K_XL)",
+      "repo": "unsloth/Qwen3.8-27B-GGUF",
       "include": "*UD-Q4_K_XL*",
-      "dir": "E:\\LlamaModels\\qwen3-coder-30b",
-      "ggufGlob": "*UD-Q4_K_XL*.gguf",
-      "enableThinking": true
-    },
-    "qwen3635b": {
-      "role": "plan",
-      "label": "Qwen3.6 35B-A3B (Unsloth UD-Q4_K_XL)",
-      "repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
-      "include": "*UD-Q4_K_XL*",
-      "dir": "E:\\LlamaModels\\qwen3.6-35b",
+      "dir": "E:\\LlamaModels\\qwen3.8-27b",
       "ggufGlob": "*UD-Q4_K_XL*.gguf",
       "enableThinking": true
     }

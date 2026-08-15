@@ -5,12 +5,16 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Tag = "b10217"
+    [string]$Tag = ""
 )
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "_common.ps1")
 $cfg = Get-ModelsConfig
+if (-not $Tag) {
+    $Tag = [string]$cfg.llamaCppTag
+    if (-not $Tag) { $Tag = "b10437" }
+}
 $binDir = [string]$cfg.llamaCppDir
 $tmp = Join-Path $binDir "_tmp"
 New-Item -ItemType Directory -Force -Path $binDir, $tmp | Out-Null

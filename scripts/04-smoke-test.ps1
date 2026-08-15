@@ -11,13 +11,14 @@
 param(
     [ValidateSet("coding", "compact")]
     [string]$Target = "coding",
-    [ValidateSet("qwen3coder30b", "qwen3635b")]
-    [string]$Model = "qwen3coder30b"
+    [string]$Model = ""
 )
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "_common.ps1")
 $cfg = Get-ModelsConfig
+if (-not $Model) { $Model = Get-DefaultModelId -Config $cfg }
+else { Assert-KnownModel -ModelId $Model -Config $cfg }
 
 if ($Target -eq "compact") {
     $port = 18081

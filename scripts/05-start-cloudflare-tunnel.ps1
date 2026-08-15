@@ -120,13 +120,13 @@ if ($apiKey.Length -lt 24) {
 Write-Host ""
 Write-Host "PUBLIC_ORIGIN=$publicOrigin"
 Write-Host "CURSOR_OVERRIDE_BASE_URL=$baseUrl"
-Write-Host "CURSOR_MODEL=qwen3coder30b"
+Write-Host "CURSOR_MODEL=qwen3827b"
 Write-Host ("CURSOR_API_KEY={0}" -f $apiKey)
 Write-Host ""
 Write-Host "Cursor Settings -> Models:"
 Write-Host ("  1) OpenAI API Key = {0}" -f $apiKey)
 Write-Host "  2) Override OpenAI Base URL = $baseUrl"
-Write-Host "  3) Models: qwen3coder30b (implement) + qwen3635b (plan)"
+Write-Host "  3) Models: qwen3827b (plan + implement)"
 Write-Host ""
 Write-Host ("URL also written to {0}" -f $urlFile)
 Write-Host "Leave this tunnel running while using Cursor. Stop with stop.bat"

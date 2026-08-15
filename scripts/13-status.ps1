@@ -22,7 +22,7 @@ $exe = Join-Path ([string]$cfg.llamaCppDir) "llama-server.exe"
 Write-Host ("llama-server.exe exists={0}" -f (Test-Path $exe))
 
 Write-Host "`n=== GGUFs ==="
-foreach ($id in @("qwen3coder30b", "qwen3635b")) {
+foreach ($id in (Get-ModelIds -Config $cfg)) {
     try {
         $p = Resolve-GgufPath -ModelId $id -Config $cfg
         $len = (Get-Item $p).Length

@@ -7,7 +7,7 @@
 | Binaries | `E:\LlamaCpp` (llama.cpp CUDA) |
 | Coding GGUFs | Unsloth **UD-Q4_K_XL** under `E:\LlamaModels\` — see `QUANTIZATION.md` |
 | Compact GGUF | Qwen2.5-3B-Instruct **Q4_K_M** → `E:\LlamaModels\compact-qwen25-3b\` |
-| Cursor models | `qwen3coder30b` (implement), `qwen3635b` (plan) |
+| Cursor model | `qwen3827b` (plan + implement) |
 
 ## Ports
 

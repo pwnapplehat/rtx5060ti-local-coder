@@ -26,7 +26,7 @@ Knobs: `config/models.json` → `contextCompact` + `compactModel`.
 
 | Option | Notes |
 | --- | --- |
-| Same 30B/35B for summarize | Works, but queues the GPU for a dull compress job |
+| Same 27B for summarize | Works, but queues the GPU for a dull compress job |
 | **Qwen2.5-3B-Instruct Q4_K_M (~2 GB)** | Instruct-tuned, small, CPU-resident sidecar |
 
 ## VRAM fit
@@ -35,8 +35,7 @@ Keep `--fit on` for coding servers. Forcing `-ngl` aborts the fitter and can tan
 
 | Model | Role |
 | --- | --- |
-| `qwen3coder30b` | Implement |
-| `qwen3635b` | Plan |
+| `qwen3827b` | Plan + implement |
 | `compact3b` | Proxy-only summarizer |
 
 ## Tip

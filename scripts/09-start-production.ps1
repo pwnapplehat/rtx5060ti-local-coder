@@ -5,12 +5,15 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet("qwen3coder30b", "qwen3635b")]
-    [string]$Model = "qwen3coder30b"
+    [string]$Model = ""
 )
 
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
+. (Join-Path $here "_common.ps1")
+$cfg = Get-ModelsConfig
+if (-not $Model) { $Model = Get-DefaultModelId -Config $cfg }
+else { Assert-KnownModel -ModelId $Model -Config $cfg }
 
 Write-Host "=== stop previous stack ==="
 & (Join-Path $here "10-stop-production.ps1") -Quiet
@@ -28,5 +31,5 @@ Write-Host "=== cloudflare tunnel -> auth proxy :11435 ==="
 & (Join-Path $here "05-start-cloudflare-tunnel.ps1") -LocalPort 11435
 
 Write-Host "PRODUCTION_STACK_UP"
-Write-Host "Cursor models: qwen3coder30b (implement) | qwen3635b (plan)"
-Write-Host "Compact:       compact3b on :18081 (CPU-only, never touches coding VRAM)"
+Write-Host ("Cursor model: {0}" -f $Model)
+Write-Host "Compact:      compact3b on :18081 (CPU-only, never touches coding VRAM)"

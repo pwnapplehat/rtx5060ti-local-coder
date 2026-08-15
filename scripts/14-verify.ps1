@@ -16,7 +16,7 @@ Write-Host "=== structure ==="
 
 . (Join-Path $PSScriptRoot "_common.ps1")
 $cfg = Get-ModelsConfig
-foreach ($id in @("qwen3coder30b", "qwen3635b")) {
+foreach ($id in (Get-ModelIds -Config $cfg)) {
     $null = Resolve-GgufPath -ModelId $id -Config $cfg
 }
 $null = Resolve-CompactGgufPath -Config $cfg
@@ -52,9 +52,10 @@ if (-not $h.useCompactSidecar) {
 Write-Host ($h | ConvertTo-Json -Compress)
 
 if (-not $SkipPublicChat) {
-    Write-Host "=== local chat smoke (implementer) ==="
+    $defaultId = Get-DefaultModelId -Config $cfg
+    Write-Host ("=== local chat smoke ({0}) ===" -f $defaultId)
     $body = @{
-        model = "qwen3coder30b"
+        model = $defaultId
         messages = @(@{ role = "user"; content = "Reply with exactly READY" })
         temperature = 0
         max_tokens = 16
